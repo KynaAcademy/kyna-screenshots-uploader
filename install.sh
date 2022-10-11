@@ -59,7 +59,13 @@ daemon_file="kyna-screenshot-uploader"
 echo
 echo "Installing uploader..."
 echo "NOTE: This may ask for your computer password"
+
+if [ -f /tmp/$daemon_file ]
+then
+  rm /tmp/$daemon_file
+fi
 curl -o /tmp/$daemon_file https://raw.githubusercontent.com/MindgymAcademy/kyna-screenshots-uploader/HEAD/upload-screenshots
+
 $SUDO mkdir -p $daemon_dir
 $SUDO cp /tmp/$daemon_file $daemon_dir/$daemon_file
 
