@@ -49,7 +49,7 @@ class Uploader:
     file_url = "https://%s/%s" % (self.bucket, basename)
     logging.info("Uploading: %s", file_url)
 
-    contentType = "image/png" if basename.endsWith(".png") else "image/jpeg"
+    contentType = "image/png" if basename.endswith(".png") else "image/jpeg"
 
     try:
       self.s3.upload_file(
