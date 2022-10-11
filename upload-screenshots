@@ -1,0 +1,97 @@
+#!/usr/local/bin/python
+
+import sys
+import time
+import logging
+import os
+import os.path
+import boto3
+import subprocess
+from botocore.exceptions import ClientError
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+
+class ScreenshotSaveEventHandler(FileSystemEventHandler):
+    """Uploads files when they are stored in the watched folder."""
+    def __init__(self, bucket):
+      self.bucket = bucket
+      self.uploader = Uploader(bucket)
+
+    def on_created(self, event):
+        super(ScreenshotSaveEventHandler, self).on_created(event)
+
+        what = 'directory' if event.is_directory else 'file'
+        logging.info("Created %s: %s", what, event.src_path)
+        if what == 'file':
+          basename = os.path.basename(event.src_path)
+          if basename == 'DS_Store': return
+
+          url = self.uploader.run(event.src_path)
+          
+          if url:
+            logging.info("Upload done. Removing local file %s", event.src_path)
+            subprocess.run("pbcopy", universal_newlines=True, input=url)
+            displayNotification(message="Upload success!", title="Screenshot", subtitle=url, soundname="Pop")
+            os.remove(event.src_path)
+          else:
+            displayNotification("Upload failed!","Screenshot")
+
+class Uploader:
+  session = boto3.Session(profile_name='kyna-screenshots')
+  s3 = session.client("s3")
+
+  def __init__(self, bucket):
+    self.bucket = bucket
+
+  def run(self, file):
+    logging.info(file)
+    basename = os.path.basename(file)
+    file_url = "https://%s/%s" % (self.bucket, basename)
+    logging.info("Uploading: %s", file_url)
+
+    try:
+      self.s3.upload_file(
+        Filename=file,
+        Bucket=self.bucket,
+        Key=basename,
+      )
+    except ClientError as e:
+      logging.error(e)
+      return False
+    return file_url
+
+def displayNotification(message,title=None,subtitle=None,soundname=None):
+	"""
+		Display an OSX notification with message title an subtitle
+		sounds are located in /System/Library/Sounds or ~/Library/Sounds
+	"""
+	titlePart = ''
+	if(not title is None):
+		titlePart = 'with title "{0}"'.format(title)
+	subtitlePart = ''
+	if(not subtitle is None):
+		subtitlePart = 'subtitle "{0}"'.format(subtitle)
+	soundnamePart = ''
+	if(not soundname is None):
+		soundnamePart = 'sound name "{0}"'.format(soundname)
+
+	appleScriptNotification = 'display notification "{0}" {1} {2} {3}'.format(message,titlePart,subtitlePart,soundnamePart)
+	os.system("osascript -e '{0}'".format(appleScriptNotification))
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO,
+                        format='%(asctime)s - %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
+
+    path = "%s/Documents/screenshots" % (os.path.expanduser('~'))
+    bucket = sys.argv[1] if len(sys.argv) > 1 else 'kyn.ac'
+    event_handler = ScreenshotSaveEventHandler(bucket)
+    observer = Observer()
+    observer.schedule(event_handler, path, recursive=True)
+    observer.start()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()
