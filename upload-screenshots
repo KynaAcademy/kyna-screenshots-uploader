@@ -24,7 +24,7 @@ class ScreenshotSaveEventHandler(FileSystemEventHandler):
         logging.info("Created %s: %s", what, event.src_path)
         if what == 'file':
           basename = os.path.basename(event.src_path)
-          if basename == 'DS_Store': return
+          if basename == '.DS_Store': return
 
           url = self.uploader.run(event.src_path)
           
