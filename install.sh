@@ -123,6 +123,8 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 
 /bin/launchctl load -w $HOME/Library/LaunchAgents/ac.kyna.screenshots.plist
 
+sleep 1
+
 if (ps aux | grep $daemon_file | grep "$bucket_name")
 then
   echo "Screen shot uploader installed to LaunchAgents."
