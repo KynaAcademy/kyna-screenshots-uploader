@@ -2,21 +2,28 @@
 
 SUDO=''
 if (( $EUID != 0 )); then
-    SUDO='sudo'
+    SUDO='/usr/bin/sudo'
 fi
 
 echo "Installing dependencies..."
-pip3 install -q watchdog boto3
+if ![ -f /opt/homebrew/bin/brew ]
+then
+  echo "You need Homebrew installed for this to work. Please visit https://brew.sh to install it."
+  exit 1
+fi
+
+/opt/homebrew/bin/brew install -q python
+/usr/local/bin/pip3 install -q watchdog boto3
 
 echo "Creating screenshots directory..."
-mkdir -p $HOME/Documents/screenshots
+/bin/mkdir -p $HOME/Documents/screenshots
 
 echo "Setting up AWS authentication profile..."
-mkdir -p $HOME/.aws
-touch $HOME/.aws/credentials
-touch $HOME/.aws/config
+/bin/mkdir -p $HOME/.aws
+/usr/bin/touch $HOME/.aws/credentials
+/usr/bin/touch $HOME/.aws/config
 
-if grep -Fq "[kyna-screenshots]" "$HOME/.aws/credentials"
+if /usr/bin/grep -Fq "[kyna-screenshots]" "$HOME/.aws/credentials"
 then
   echo "AWS profile already exists, skipping."
 else
@@ -37,7 +44,7 @@ aws_secret_access_key = $secret_access_key
 " >> $HOME/.aws/credentials
 fi
 
-if grep -Fq "[kyna-screenshots]" "$HOME/.aws/config"
+if /usr/bin/grep -Fq "[kyna-screenshots]" "$HOME/.aws/config"
 then
   echo "AWS config already exists, skipping."
 else
@@ -62,24 +69,30 @@ echo "NOTE: This may ask for your computer password"
 
 if [ -f /tmp/$daemon_file ]
 then
-  rm /tmp/$daemon_file
+  /bin/rm /tmp/$daemon_file
 fi
 curl -o /tmp/$daemon_file https://raw.githubusercontent.com/MindgymAcademy/kyna-screenshots-uploader/HEAD/upload-screenshots
 
-$SUDO mkdir -p $daemon_dir
-$SUDO cp /tmp/$daemon_file $daemon_dir/$daemon_file
+$SUDO /bin/mkdir -p $daemon_dir
+$SUDO /bin/cp /tmp/$daemon_file $daemon_dir/$daemon_file
 
 if [ -f /usr/local/bin/$daemon_file ]
 then
-  $SUDO rm /usr/local/bin/$daemon_file
+  $SUDO /bin/rm /usr/local/bin/$daemon_file
 fi
 
-$SUDO ln -s $daemon_dir/$daemon_file /usr/local/bin
+$SUDO /bin/ln -s $daemon_dir/$daemon_file /usr/local/bin
 
 echo
 echo "Installing launchd plist..."
 
-mkdir -p $HOME/Library/LaunchAgents
+/bin/mkdir -p $HOME/Library/LaunchAgents
+
+if [ -f $HOME/Library/LaunchAgents/ac.kyna.screenshots.plist ]
+then
+  /bin/launchctl stop ac.kyna.screenshots
+  /bin/launchctl unload $HOME/Library/LaunchAgents/ac.kyna.screenshots.plist
+fi
 
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
@@ -102,7 +115,7 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 </plist>
 " > $HOME/Library/LaunchAgents/ac.kyna.screenshots.plist
 
-launchctl load $HOME/Library/LaunchAgents/ac.kyna.screenshots.plist
+/bin/launchctl load -w $HOME/Library/LaunchAgents/ac.kyna.screenshots.plist
 
 echo "Screen shot uploader installed to LaunchAgents."
 
