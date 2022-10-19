@@ -7,7 +7,7 @@ fi
 
 echo "Installing dependencies..."
 
-if ![ -f /usr/local/bin/python3 ]
+if [ ! -f "/usr/local/bin/python3" ]
 then
   if (which brew)
   then
