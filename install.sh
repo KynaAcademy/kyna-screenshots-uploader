@@ -77,7 +77,7 @@ if [ -f /tmp/$daemon_file ]
 then
   /bin/rm /tmp/$daemon_file
 fi
-/usr/bin/curl --silent -o /tmp/$daemon_file https://raw.githubusercontent.com/MindgymAcademy/kyna-screenshots-uploader/HEAD/upload-screenshots
+/usr/bin/curl --silent -o /tmp/$daemon_file https://raw.githubusercontent.com/MindgymAcademy/kyna-screenshots-uploader/HEAD/upload-screenshots > /dev/null
 
 $SUDO /bin/mkdir -p $daemon_dir
 $SUDO /bin/cp /tmp/$daemon_file $daemon_dir/$daemon_file
