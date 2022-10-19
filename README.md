@@ -19,6 +19,12 @@ $ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/MindgymAcademy/ky
 This will ask for your computer's password, AWS credentials, and the AWS bucket to upload to. Here at Kyna,
 we upload to a bucket called `kyna.ac`.
 
+#### Give Permissions
+
+This may pop up because you need to give Python access to your screenshots folder. You should click "OK" here.
+
+[![](https://kyn.ac/SCR-20221019-lac.png)](https://kyn.ac/SCR-20221019-lac.png)
+
 ### Configure Shottr
 
 Configure Shottr to:
