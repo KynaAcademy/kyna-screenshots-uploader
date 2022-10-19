@@ -7,7 +7,7 @@ fi
 
 echo "Installing dependencies..."
 
-if [ ! -f "/usr/local/bin/python3" ]
+if [ ! -f /usr/local/bin/python3 ]
 then
   if (which brew)
   then
@@ -19,7 +19,7 @@ then
   fi
 fi
 
-/usr/local/bin/pip3 install -q watchdog boto3
+/usr/local/bin/pip3 install watchdog boto3
 
 echo "Creating screenshots directory..."
 /bin/mkdir -p $HOME/Documents/screenshots
