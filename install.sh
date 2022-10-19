@@ -6,13 +6,19 @@ if (( $EUID != 0 )); then
 fi
 
 echo "Installing dependencies..."
-if ![ -f /opt/homebrew/bin/brew ]
+
+if ![ -f /usr/local/bin/python3 ]
 then
-  echo "You need Homebrew installed for this to work. Please visit https://brew.sh to install it."
-  exit 1
+  if (which brew)
+  then
+    echo "Great, you have Homebrew installed, continuing to install python3..."
+    brew install -q python
+  else
+    echo "You need Homebrew installed for this to work. Please visit https://brew.sh to install it."
+    exit 1
+  fi
 fi
 
-/opt/homebrew/bin/brew install -q python
 /usr/local/bin/pip3 install -q watchdog boto3
 
 echo "Creating screenshots directory..."
