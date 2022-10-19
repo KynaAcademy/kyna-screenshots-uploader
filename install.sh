@@ -123,18 +123,31 @@ echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 
 /bin/launchctl load -w $HOME/Library/LaunchAgents/ac.kyna.screenshots.plist
 
-echo "Screen shot uploader installed to LaunchAgents."
+if (ps aux | grep $daemon_file | grep "$bucket_name")
+then
+  echo "Screen shot uploader installed to LaunchAgents."
+  echo "
+  ******************************************************
+  * Step 1. Download Shottr from https://shottr.cc/    *
+  * Step 2. Set Shottr's Screenshots folder to save to *
+  *         ~/Documents/screenshots                    *
+  *         And After Screenshot to Show + Show Editor *
+  * Step 3. Make a screenshot (⌘+⇧+2), annotate it,    *
+  *         save it. The URL should be copied and you  *
+  *         can paste it in Slack, course materials,   *
+  *         etc! Have fun and make sure to not upload  *
+  *         sensitive information (you can blur!)      *
+  ******************************************************
 
-echo "
-******************************************************
-* Step 1. Download Shottr from https://shottr.cc/    *
-* Step 2. Set Shottr's Screenshots folder to save to *
-*         ~/Documents/screenshots                    *
-*         And After Screenshot to Show + Show Editor *
-* Step 3. Make a screenshot (⌘+⇧+2), annotate it,    *
-*         save it. The URL should be copied and you  *
-*         can paste it in Slack, course materials,   *
-*         etc! Have fun and make sure to not upload  *
-*         sensitive information (you can blur!)      *
-******************************************************
-"
+  Thank you for installing the uploader!
+  "
+else
+  echo "Something went wrong and the uploader did not start properly. Please check: the logfile:"
+  echo
+  /bin/cat /tmp/ac.kyna.screenshots.log
+  echo
+  echo "If that does not help you, please open an issue here: https://github.com/MindgymAcademy/kyna-screenshots-uploader/issues"
+  echo
+  echo "Thank you!"
+  exit 1
+fi
