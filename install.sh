@@ -81,6 +81,7 @@ fi
 
 $SUDO /bin/mkdir -p $daemon_dir
 $SUDO /bin/cp /tmp/$daemon_file $daemon_dir/$daemon_file
+$SUDO /bin/chmod +x $daemon_dir/$daemon_file
 
 if [ -f /usr/local/bin/$daemon_file ]
 then
